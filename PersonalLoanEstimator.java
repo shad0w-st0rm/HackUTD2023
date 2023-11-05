@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -37,7 +38,7 @@ public class PersonalLoanEstimator {
         panel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
         panel.setLayout(boxLayout);
-        GridLayout gridLayout = new GridLayout(2, 9);
+        GridLayout gridLayout = new GridLayout(2, 11);
         gridLayout.setHgap(10);
         gridLayout.setVgap(10);
         fieldsPanel = new JPanel(gridLayout);
@@ -45,6 +46,7 @@ public class PersonalLoanEstimator {
         frame.add(panel);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        fieldsPanel.add(new JLabel(""));
         fieldsPanel.add(new JLabel("Monthly Income", SwingConstants.CENTER));
         fieldsPanel.add(new JLabel("Credit Card Payment", SwingConstants.CENTER));
         fieldsPanel.add(new JLabel("Car Payment", SwingConstants.CENTER));
@@ -54,7 +56,8 @@ public class PersonalLoanEstimator {
         fieldsPanel.add(new JLabel("Loan Amount", SwingConstants.CENTER));
         fieldsPanel.add(new JLabel("Monthly Mortgage Payment", SwingConstants.CENTER));
         fieldsPanel.add(new JLabel("Credit Score", SwingConstants.CENTER));
-
+        fieldsPanel.add(new JLabel(""));
+        // fieldsPanel.add(new JLabel(""));
 
         monthlyIncome = new JFormattedTextField(NumberFormat.getNumberInstance());
         monthlyIncome.setColumns(10);
@@ -169,20 +172,25 @@ public class PersonalLoanEstimator {
         approvalStatus.setLineWrap(true);
         approvalStatus.setWrapStyleWord(true);
 
-        fieldsPanel.add(monthlyIncome, BorderLayout.NORTH);
-        fieldsPanel.add(creditCardPayment, BorderLayout.NORTH);
-        fieldsPanel.add(carPayment, BorderLayout.NORTH);
-        fieldsPanel.add(studentLoanPayment, BorderLayout.NORTH);
-        fieldsPanel.add(appraisedValue, BorderLayout.NORTH);
-        fieldsPanel.add(downPayment, BorderLayout.NORTH);
-        fieldsPanel.add(loanAmount, BorderLayout.NORTH);
-        fieldsPanel.add(monthlyPayment, BorderLayout.NORTH);
-        fieldsPanel.add(creditScore, BorderLayout.NORTH);
+        fieldsPanel.add(new JLabel(""));
+        fieldsPanel.add(monthlyIncome);
+        fieldsPanel.add(creditCardPayment);
+        fieldsPanel.add(carPayment);
+        fieldsPanel.add(studentLoanPayment);
+        fieldsPanel.add(appraisedValue);
+        fieldsPanel.add(downPayment);
+        fieldsPanel.add(loanAmount);
+        fieldsPanel.add(monthlyPayment);
+        fieldsPanel.add(creditScore);
+        fieldsPanel.add(new JLabel(""));
+        Dimension filler = new Dimension(0, 25);
+        panel.add(new Box.Filler(filler, filler, filler));
         panel.add(approvalStatus, BorderLayout.SOUTH);
 
         frame.pack();
         frame.setMinimumSize(new Dimension(500, 500));
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
 
         homeBuyer = new HomeBuyer();
     }
@@ -195,14 +203,14 @@ public class PersonalLoanEstimator {
             List<Main.Issue> issues = homeBuyer.getIssues();
 
             if (issues.size() == 1 && issues.get(0) == Main.Issue.MEDIUM_LTV) {
-                // only issue is PMI necessitating LTV ratio
+                // only issue is LTV ratio requiring PMI
                 approvalStatus.setText(
-                        "Conditionally Approved.\nDue to a high Loan to Value ratio (Value of the loan compared to the appraised value), private mortgage insurance required.");
+                        "Conditionally Approved.\nDue to a high Loan to Value ratio (Value of the loan compared to the appraised value), private mortgage insurance required.\n");
             } else {
-                String issuesString = "Unfortunately, you will not be likely to be accepted for a loan. See below for some next steps.\n";
+                String issuesString = "Unfortunately, you will not be likely to be accepted for a loan. See below for some next steps.\n\n";
 
                 for (Main.Issue issue : issues) {
-                    issuesString += getNextSteps(issue) + "\n";
+                    issuesString += getNextSteps(issue) + "\n\n";
                 }
 
                 approvalStatus.setText(issuesString);
@@ -217,11 +225,9 @@ public class PersonalLoanEstimator {
         switch (issue) {
             case BAD_CREDIT:
                 string += "Your credit score is lower than the 640 score that is typically expected. Here are some ways to increase your credit score.\n"
-                        +
-                        "Here are some articles that will help with that: \n " +
-                        "https://money.usnews.com/credit-cards/articles/everything-you-need-to-know-about-credit-scores\n"
-                        +
-                        "https://www.nerdwallet.com/article/finance/great-credit-powerful-tool\n";
+                        + "https://money.usnews.com/credit-cards/articles/everything-you-need-to-know-about-credit-scores\n"
+                        + "https://www.nerdwallet.com/article/finance/great-credit-powerful-tool\n";
+                break;
 
             case HIGH_LTV:
                 string += "Your loan to value ratio (loan value to appraised home value, LTV) is higher than 95% which is significantly over the expected 80%."
@@ -229,7 +235,7 @@ public class PersonalLoanEstimator {
                         "This can be mitigated by either increasing your down payment or considering a different home.\n"
                         +
                         "Here are some articles that will help with that: \n\n " +
-                
+
                         "What is LTV?\n" +
                         "https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/\n" +
                         "https://www.investopedia.com/terms/d/dti.asp\n\n" +
@@ -237,6 +243,7 @@ public class PersonalLoanEstimator {
                         "How do I lower LTV?\n" +
                         "https://pacifichomeloans.com/how-to-improve-your-debt-to-income-ratio-dti/\n" +
                         "https://www.incharge.org/blog/how-to-improve-debt-to-income-with-more-income/x\n";
+                break;
 
             case MEDIUM_LTV:
                 string += "Your loan to value ratio (loan value to appraised home value, LTV) is below 95% but still above the expected 80% so almost all lenders will require you to "
@@ -253,17 +260,19 @@ public class PersonalLoanEstimator {
                         "https://pacifichomeloans.com/how-to-improve-your-debt-to-income-ratio-dti/\n" +
                         "https://www.incharge.org/blog/how-to-improve-debt-to-income-with-more-income/x\n" +
 
-                        "What is PMI?\n" + 
+                        "What is PMI?\n" +
                         "https://www.consumerfinance.gov/ask-cfpb/what-is-private-mortgage-insurance-en-122/\n";
+                break;
 
             case HIGH_DTI:
-                string += "Your debt to income ratio (total monthly debt payments divided by total income, DTI) is higher than the typical maximum of 36%."
+                string += "Your debt to income ratio (total monthly debt payments divided by total income, DTI) is higher than the typical maximum of 36%. "
                         +
                         "This can be difficult to solve because oftentimes lowering payments such as car loans or student loans is not possible. Lowering your monthly mortgage payments through either a higher down payment or a less expensive home can help reduce DTI.\n"
                         +
-                        "Here are some resources to try and help you reduce your DTI ratio.\n" +
+                        "Here are some resources to try and help you reduce your DTI ratio:\n" +
                         "https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/\n" +
                         "https://www.investopedia.com/terms/d/dti.asp\n";
+                break;
             case HIGH_FEDTI:
                 string += "Your front end debt to income ratio (monthly mortgage payment divded by total income, FEDTI) is higher than the typical maximum of 28%. "
                         +
@@ -272,6 +281,7 @@ public class PersonalLoanEstimator {
                         "Here are some resources to try to reduce your FEDTI ratio:\n" +
                         "https://www.investopedia.com/terms/f/front-end-debt-to-income-ratio.asp\n" +
                         "https://pacifichomeloans.com/how-to-improve-your-debt-to-income-ratio-dti/\n";
+                break;
         }
 
         return string;

@@ -76,18 +76,18 @@ public class Main {
         return new HomeBuyer(fields);
     }
 
-    public void processBatchFile(List<HomeBuyer> homeBuyersList, String outputFileName) throws IOException
+    public static void processBatchFile(List<HomeBuyer> homeBuyersList, File outputFile) throws IOException
     {
-        BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputFileName));
+        outputFile.createNewFile();
+        BufferedWriter outputWriter = new BufferedWriter(new FileWriter(outputFile));
 
         for (HomeBuyer homeBuyer : homeBuyersList)
         {
-            outputFile.append(homeBuyer.getId() + " ");
+            outputWriter.append(homeBuyer.getId() + ",");
             String status = (homeBuyer.isApproved() ? "Y" : "N");
-            outputFile.append(status + "\n");
+            outputWriter.append(status + "\n");
         }
-        outputFile.close();
-        
+        outputWriter.close();
     }
 
     public static float getLTV(HomeBuyer homeBuyer) 
