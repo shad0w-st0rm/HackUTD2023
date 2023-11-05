@@ -25,27 +25,7 @@ public class Main {
 
     public void runIt()
     {
-        List<HomeBuyer> homeBuyers = null;
-        try
-        {
-            homeBuyers = readData(new File("HackUTD-2023-HomeBuyerInfo.csv"));
-        }
-        catch (FileNotFoundException e)
-        {
-            System.out.println("Could not find csv file!");
-            return;
-        }
-
         Dashboard dashboard = new Dashboard();
-
-        /*
-        try {
-            processBatchFile(homeBuyers, "output.txt");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        */
     }
 
     public static List<HomeBuyer> readData(File file) throws FileNotFoundException
@@ -117,13 +97,14 @@ public class Main {
         }
 
         float ltv = getLTV(homeBuyer);
+        boolean PMIrequired = false;
         if (ltv >= 80)
         {
             homeBuyer.addPMICost();
             if (ltv > 95)
                 issues.add(Issue.HIGH_LTV);
             else
-                issues.add(Issue.MEDIUM_LTV);
+                PMIrequired = true;
         }
 
         if (getDTI(homeBuyer) > 36)
@@ -135,6 +116,8 @@ public class Main {
         {
             issues.add(Issue.HIGH_FEDTI);
         }
+
+        if (PMIrequired) issues.add(Issue.MEDIUM_LTV);
 
         return issues;
     }
